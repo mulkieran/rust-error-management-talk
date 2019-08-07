@@ -1,0 +1,2377 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass beamer
+\begin_preamble
+%\usetheme{Warsaw}
+\usetheme{Boadilla}
+% or ...
+
+\usecolortheme{orchid}
+\setbeamertemplate{footline}[frame number]{} % makes the footer EMPTY
+
+\setbeamercovered{transparent}
+% or whatever (possibly just delete it)
+\end_preamble
+\use_default_options false
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "times" "default"
+\font_sans "lmss" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_package amsmath 2
+\use_package amssymb 2
+\use_package cancel 1
+\use_package esint 0
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 0
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 2
+\tocdepth 2
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+An Error-Management Story for Rust
+\end_layout
+
+\begin_layout Author
+Anne Mulhern
+\end_layout
+
+\begin_layout Institute
+Red Hat, Inc.
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+Audience
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+Who should want to attend this talk?
+\end_layout
+
+\begin_layout Itemize
+Rust programmers looking for a reliable error-management solution.
+\end_layout
+
+\begin_layout Itemize
+People interested in error-management generally.
+\end_layout
+
+\begin_layout Itemize
+Language enthusiasts.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+Me
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+Who is giving this talk?
+\end_layout
+
+\begin_layout Itemize
+I've been programming in Rust for a few years.
+\end_layout
+
+\begin_layout Itemize
+I've been programming in Python for many years.
+\end_layout
+
+\begin_layout Itemize
+At one time, I programmed in C quite a bit.
+\end_layout
+
+\begin_layout Itemize
+I'm the Stratis team tech-lead
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+https://stratis-storage.github.io/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+Expectations
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+What this talk will include.
+\end_layout
+
+\begin_layout Itemize
+A discussion of error-management generally and in several languages.
+\end_layout
+
+\begin_layout Itemize
+A discussion of the status of error-management in Rust these days.
+\end_layout
+
+\begin_layout Itemize
+A discussion of what I've come up with for error-management in Rust, so
+ far.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+The Problem
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+Why the need for this talk?
+\end_layout
+
+\begin_layout Standard
+Rust has no established mechanism or policy for error-management (it does
+ have some pretty good error-handling primitives).
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+The Problem
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+Why the need for this talk?
+\end_layout
+
+\begin_layout Standard
+What language does have an established mechanism for error-management anyway?
+ 
+\emph on
+I can't think of any.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout FragileFrame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+The Problem
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+An example: Python 3
+\end_layout
+
+\begin_layout Standard
+Python 3 has some nice error-handling primitives.
+\end_layout
+
+\begin_layout ExampleBlock
+\begin_inset Argument 2
+status open
+
+\begin_layout Plain Layout
+Using Python Exceptions with Exception Chaining
+\end_layout
+
+\end_inset
+
+
+\begin_inset listings
+lstparams "basicstyle={\scriptsize}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+        try:
+\end_layout
+
+\begin_layout Plain Layout
+
+            return func(expr)
+\end_layout
+
+\begin_layout Plain Layout
+
+        # Allow KeyboardInterrupt error to be propagated
+\end_layout
+
+\begin_layout Plain Layout
+
+        except KeyboardInterrupt as err:  # pragma: no cover
+\end_layout
+
+\begin_layout Plain Layout
+
+            raise err
+\end_layout
+
+\begin_layout Plain Layout
+
+        except IntoDPError as err:
+\end_layout
+
+\begin_layout Plain Layout
+
+            raise err
+\end_layout
+
+\begin_layout Plain Layout
+
+        except BaseException as err:  # pragma: no cover
+\end_layout
+
+\begin_layout Plain Layout
+
+            raise IntoDPSurprisingError(
+\end_layout
+
+\begin_layout Plain Layout
+
+                "encountered a surprising error",
+\end_layout
+
+\begin_layout Plain Layout
+
+                expr) from err
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+The Problem
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+An Example: Python 3
+\end_layout
+
+\begin_layout Standard
+But it does not really have an agreed upon error-management story.
+ Consequently, in the general case, any Python program must expect to encounter
+ any Python exception during its execution.
+\end_layout
+
+\begin_layout Itemize
+This fact is more or less ignored by Python developers.
+\end_layout
+
+\begin_layout Itemize
+The reactive approach to development is accepted by Python developers.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+The Problem
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+An Example: Python 3
+\end_layout
+
+\begin_layout Standard
+I have some simple rules that I follow, and when 
+\emph on
+my
+\emph default
+ code depends on 
+\emph on
+my
+\emph default
+ libraries that works pretty well:
+\end_layout
+
+\begin_layout Itemize
+It constitutes a bug if any exception not defined by a library is raised
+ from that library.
+\end_layout
+
+\begin_layout Itemize
+Any non-original exception is chained with its causing or preceding exception;
+ a previously generated exception is not forgotten when a new one is raised.
+\end_layout
+
+\begin_layout Standard
+But all this is work, and none of it is enforced or agreed upon by others.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+The Problem
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+An Example: C
+\end_layout
+
+\begin_layout Standard
+The classic C approach is by means of error codes returned from functions.
+\end_layout
+
+\begin_layout Itemize
+These are often not well documented.
+\end_layout
+
+\begin_layout Itemize
+They do not contain a lot of information.
+\end_layout
+
+\begin_layout Itemize
+The easiest thing to do with these error codes is to ignore them.
+\end_layout
+
+\begin_layout Itemize
+My fellow grad student made a graduate student career out of studying problems
+ arising from this
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+https://web.cs.ucdavis.edu/~rubio/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+.
+ Published between 2008 and 2012:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Finding Error-Propagation Bugs in Large Software Systems Using Static Analysis
+ - dissertation
+\end_layout
+
+\begin_layout Itemize
+Finding Error-Handling Bugs in Systems Code Using Static Analysis
+\end_layout
+
+\begin_layout Itemize
+Defective Error/Pointer Interactions in the Linux Kernel
+\end_layout
+
+\begin_layout Itemize
+Expect the Unexpected: Error Code Mismatches Between Documentation and the
+ Real World
+\end_layout
+
+\begin_layout Itemize
+Error Propagation Analysis for File Systems
+\end_layout
+
+\begin_layout Itemize
+EIO: Error Handling is Occasionally Correct
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+The Problem
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+Summary
+\end_layout
+
+\begin_layout Description
+C
+\end_layout
+
+\begin_deeper
+\begin_layout Description
+Good: there 
+\emph on
+is
+\emph default
+ a mechansim to indicate that an error occurred
+\end_layout
+
+\begin_layout Description
+Bad: everything else
+\end_layout
+
+\end_deeper
+\begin_layout Description
+Python:
+\end_layout
+
+\begin_deeper
+\begin_layout Description
+Good: exception mechanism allowing error details
+\end_layout
+
+\begin_layout Description
+Bad: any exception type, anywhere, stack traces galore
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+An Aside on Types
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+A Tale of Three Languages
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="3" columns="3">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Statically Type-Checked
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Dynamically Type-Checked
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Type-Sound
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Rust
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Python
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Not Type-Sound
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+C
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+?
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout FragileFrame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+What Does Rust Do?
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+What Facilities Does Rust Have for Error Handling?
+\emph on
+
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+
+\emph on
+Some annotations elided.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout ExampleBlock
+
+\emph on
+\begin_inset Argument 2
+status open
+
+\begin_layout Plain Layout
+The Result Type Definition
+\end_layout
+
+\end_inset
+
+
+\begin_inset listings
+lstparams "basicstyle={\tiny}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+/// `Result` is a type that represents either success ([`Ok`]) or failure
+ ([`Err`]).
+\end_layout
+
+\begin_layout Plain Layout
+
+///
+\end_layout
+
+\begin_layout Plain Layout
+
+/// [`Ok`]: enum.Result.html#variant.Ok
+\end_layout
+
+\begin_layout Plain Layout
+
+/// [`Err`]: enum.Result.html#variant.Err
+\end_layout
+
+\begin_layout Plain Layout
+
+#[derive(Clone, Copy, PartialEq, PartialOrd, Eq, Ord, Debug, Hash)]
+\end_layout
+
+\begin_layout Plain Layout
+
+#[must_use = "this `Result` may be an `Err` variant, which should be handled"]
+\end_layout
+
+\begin_layout Plain Layout
+
+pub enum Result<T, E> {
+\end_layout
+
+\begin_layout Plain Layout
+
+    /// Contains the success value
+\end_layout
+
+\begin_layout Plain Layout
+
+    Ok(T),
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    /// Contains the error value
+\end_layout
+
+\begin_layout Plain Layout
+
+    Err(E),
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout FragileFrame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+What Does Rust Do?
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+What facilities does Rust have for error-handling?
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Note that this is a compiler warning, so you could turn it off, but then,
+ nobody would trust you.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout ExampleBlock
+\begin_inset Argument 2
+status open
+
+\begin_layout Plain Layout
+The Default Behavior
+\end_layout
+
+\end_inset
+
+
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+fn write(f: &mut File) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    let thing_to_write = [0; 3];
+\end_layout
+
+\begin_layout Plain Layout
+
+    f.write(&thing_to_write);
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout ExampleBlock
+and the compiler responds:
+\end_layout
+
+\begin_layout ExampleBlock
+\begin_inset listings
+lstparams "basicstyle={\tiny}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+warning: unused `std::result::Result` that must be used
+\end_layout
+
+\begin_layout Plain Layout
+
+ --> src/lib.rs:5:5
+\end_layout
+
+\begin_layout Plain Layout
+
+  |
+\end_layout
+
+\begin_layout Plain Layout
+
+5 |     f.write(&thing_to_write);
+\end_layout
+
+\begin_layout Plain Layout
+
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+\end_layout
+
+\begin_layout Plain Layout
+
+  |
+\end_layout
+
+\begin_layout Plain Layout
+
+  = note: #[warn(unused_must_use)] on by default
+\end_layout
+
+\begin_layout Plain Layout
+
+  = note: this `Result` may be an `Err` variant, which should be handled
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout FragileFrame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+What Does Rust Do?
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+What facilities does Rust have for error-handling?
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+This, too, is disheartening to see in production code, because it means
+ 
+\begin_inset Quotes eld
+\end_inset
+
+fail immediately if there is an error
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout ExampleBlock
+\begin_inset Argument 2
+status collapsed
+
+\begin_layout Plain Layout
+Naughty Behavior
+\end_layout
+
+\end_inset
+
+
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+fn write(f: &mut File) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    let thing_to_write = [0; 3];
+\end_layout
+
+\begin_layout Plain Layout
+
+    f.write(&thing_to_write).unwrap();
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout ExampleBlock
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout FragileFrame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+What Does Rust Do?
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+What facilities doe Rust have for error-handling?
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+expect() is an assertion that something must succeed, it doesn't belong
+ here.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout ExampleBlock
+\begin_inset Argument 2
+status open
+
+\begin_layout Plain Layout
+Duplicitous Behavior
+\end_layout
+
+\end_inset
+
+
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+fn write(f: &mut File) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    let thing_to_write = [0; 3];
+\end_layout
+
+\begin_layout Plain Layout
+
+    f.write(&thing_to_write)
+\end_layout
+
+\begin_layout Plain Layout
+
+        .expect(
+\begin_inset Quotes eld
+\end_inset
+
+writing to a file never fails
+\begin_inset Quotes erd
+\end_inset
+
+);
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout FragileFrame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+dbus-signature-pyparsing
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+A parser based on pyparsing
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://github.com/pyparsing/pyparsing
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+, which parses D-Bus signatures.
+\end_layout
+
+\begin_layout ExampleBlock
+\begin_inset Argument 2
+status collapsed
+
+\begin_layout Plain Layout
+An Interactive Session with dbus-signature-pyparsing
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout ExampleBlock
+\begin_inset listings
+lstparams "language=Python"
+inline false
+status collapsed
+
+\begin_layout Plain Layout
+
+>>> signature = dbus_signatures().example()
+\end_layout
+
+\begin_layout Plain Layout
+
+>>> signature
+\end_layout
+
+\begin_layout Plain Layout
+
+'(atguauay)h(vaasasx)a{g(yg)}'
+\end_layout
+
+\begin_layout Plain Layout
+
+>>> from dbus_signature_pyparsing import Parser
+\end_layout
+
+\begin_layout Plain Layout
+
+>>> parser = Parser().PARSER
+\end_layout
+
+\begin_layout Plain Layout
+
+>>> _ = parser.parseString(signature, parseAll=True)
+\end_layout
+
+\begin_layout Plain Layout
+
+>>> parser.parseString(
+\begin_inset Quotes eld
+\end_inset
+
+a
+\begin_inset Quotes erd
+\end_inset
+
+, parseAll=True)
+\end_layout
+
+\begin_layout Plain Layout
+
+Traceback (most recent call last):
+\end_layout
+
+\begin_layout Plain Layout
+
+  ...
+\end_layout
+
+\begin_layout Plain Layout
+
+  File "/usr/lib/python3.7/site-packages...
+\begin_inset Quotes erd
+\end_inset
+
+ ...
+\end_layout
+
+\begin_layout Plain Layout
+
+    raise ParseException(...)
+\end_layout
+
+\begin_layout Plain Layout
+
+pyparsing.ParseException: Expected end of text ...
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+Benefits of Constructing and Distributing the Parser
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+What does a general purpose D-Bus signature parser give us?
+\end_layout
+
+\begin_layout Itemize
+100% code coverge on tests.
+\end_layout
+
+\begin_layout Itemize
+This is where the compiler technology comes in
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://www.pearson.com/us/higher-education/program/Fischer-Crafting-A-Compiler/PG
+M315544.html
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+pyparsing is a two-stage parser-generator.
+\end_layout
+
+\begin_layout Itemize
+any client can use this library to build anything that can be built from
+ parse actions on a D-Bus signature.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Red Hat gives back to the community by distributing this work.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+into-dbus-python
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://github.com/stratis-storage/into-dbus-python
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+Special-purpose library that generates transformation functions from D-Bus
+ signatures.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout FragileFrame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+into-dbus-python
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+The functions transform values with regular Python language types to value
+ with dbus-python
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://pypi.org/project/dbus-python/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+ types.
+\end_layout
+
+\begin_layout ExampleBlock
+\begin_inset Argument 2
+status collapsed
+
+\begin_layout Plain Layout
+An Interactive Session with into-dbus-python
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout ExampleBlock
+\begin_inset listings
+lstparams "language=Python"
+inline false
+status collapsed
+
+\begin_layout Plain Layout
+
+>>> from into_dbus_python import xformers
+\end_layout
+
+\begin_layout Plain Layout
+
+>>> func = xformers(
+\begin_inset Quotes eld
+\end_inset
+
+aq
+\begin_inset Quotes erd
+\end_inset
+
+)[0][0]
+\end_layout
+
+\begin_layout Plain Layout
+
+>>> func
+\end_layout
+
+\begin_layout Plain Layout
+
+<function _ToDbusXformer._handleArray...
+\end_layout
+
+\begin_layout Plain Layout
+
+>>> func([2])
+\end_layout
+
+\begin_layout Plain Layout
+
+(dbus.Array([dbus.UInt16(2)], ...)
+\end_layout
+
+\begin_layout Plain Layout
+
+>>> func("abc")
+\end_layout
+
+\begin_layout Plain Layout
+
+Traceback (most recent call last):
+\end_layout
+
+\begin_layout Plain Layout
+
+  ...
+\end_layout
+
+\begin_layout Plain Layout
+
+into_dbus_python._errors.IntoDPValueError: ...
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+Benefits of Constructing and Distributing this Function Generator
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+What good is this function generator?
+\end_layout
+
+\begin_layout Itemize
+Allows callers to set 
+\family typewriter
+introspect
+\family default
+ to 
+\family typewriter
+False
+\family default
+ in 
+\family typewriter
+BusConnection.get_object
+\family default
+ call.
+\end_layout
+
+\begin_layout Itemize
+100% code coverge on tests.
+\end_layout
+
+\begin_layout Itemize
+Innovative use of compiler technology.
+\end_layout
+
+\begin_layout Itemize
+Red Hat gives back to the community by distributing this work.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+dbus-python-client-gen
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://github.com/stratis-storage/dbus-python-client-gen
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+Generates syntactic sugar for D-Bus function calls using dbus-python.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout FragileFrame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+dbus-python-client-gen
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+Given introspection data for a given D-Bus interface generates a class with
+ corresponding methods.
+\end_layout
+
+\begin_layout ExampleBlock
+\begin_inset Argument 2
+status collapsed
+
+\begin_layout Plain Layout
+Example introspection data
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout ExampleBlock
+\begin_inset listings
+lstparams "language=Python,basicstyle={\tiny}"
+inline false
+status collapsed
+
+\begin_layout Plain Layout
+
+introspect = """
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+ <interface name="org.storage.stratis1.blockdev">
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+ <method name="SetUserInfo">
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+ <arg name="id" type="s" direction="in"/>
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+ <arg name="changed" type="b" direction="out"/>
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+ <arg name="return_code" type="q" direction="out"/>
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+ <arg name="return_string" type="s" direction="out"/>
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+ </method>
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+ <property name="Devnode" type="s" access="read">
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+ <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+ </property>
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+ </interface>
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+ 
+\begin_inset Quotes eld
+\end_inset
+
+
+\begin_inset Quotes erd
+\end_inset
+
+
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout FragileFrame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+dbus-python-client-gen
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+Given introspection data for a given D-Bus interface generates a class with
+ corresponding methods.
+\end_layout
+
+\begin_layout ExampleBlock
+\begin_inset Argument 2
+status collapsed
+
+\begin_layout Plain Layout
+An interactive session with dbus-python-client-gen
+\end_layout
+
+\end_inset
+
+
+\begin_inset listings
+lstparams "language=Python,showstringspaces=false"
+inline false
+status collapsed
+
+\begin_layout Plain Layout
+
+>>> import dbus_python_client_gen
+\end_layout
+
+\begin_layout Plain Layout
+
+>>> from dbus_python_client_gen import make_class
+\end_layout
+
+\begin_layout Plain Layout
+
+>>> import xml.etree.ElementTree as ET
+\end_layout
+
+\begin_layout Plain Layout
+
+>>> Blockdev = make_class(
+\begin_inset Quotes eld
+\end_inset
+
+Blockdev
+\begin_inset Quotes erd
+\end_inset
+
+,
+\end_layout
+
+\begin_layout Plain Layout
+
+                          ET.fromstring(introspect))
+\end_layout
+
+\begin_layout Plain Layout
+
+>>> Blockdev
+\end_layout
+
+\begin_layout Plain Layout
+
+<class 'types.Blockdev'>
+\end_layout
+
+\begin_layout Plain Layout
+
+>>> Blockdev.Methods.SetUserInfo
+\end_layout
+
+\begin_layout Plain Layout
+
+<function method_builder.<locals>...>
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+dbus-python-client-gen
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+What does the Blockdev.Methods.SetUserInfo function do?
+\end_layout
+
+\begin_layout Itemize
+It takes two parameters:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+a proxy object
+\end_layout
+
+\begin_layout Itemize
+a dict containing the function arguments
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+It
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+verifies that the function keywords are correct.
+\end_layout
+
+\begin_layout Itemize
+transforms the function arguments to dbus-python ones using an into-dbus-python
+ generated function.
+\end_layout
+
+\begin_layout Itemize
+obtains the appropriate dbus-python method.
+\end_layout
+
+\begin_layout Itemize
+invokes the method passing the transformed arguments.
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+Benefits of Constructing and Distributing this Function Generator
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+What good is this function generator?
+\end_layout
+
+\begin_layout Itemize
+Yields some reasonable syntactic sugar.
+\end_layout
+
+\begin_layout Itemize
+This syntactic sugar gives some additional benefits:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Dynamic check that exactly the correct arguments are passed.
+\end_layout
+
+\begin_layout Itemize
+Automatic transformation of argument values to dbus-python types.
+\end_layout
+
+\begin_layout Itemize
+Exceptions which supplement those generated by dbus-python methods.
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+dbus-client-gen
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://github.com/stratis-storage/dbus-client-gen
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+Generates syntactic sugar for interpreting values returned on the D-Bus.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout FragileFrame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+dbus-client-gen
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+Given introspection data for a given D-Bus interface generates useful functions
+ for interacting with a GetManagedObjects call result.
+\end_layout
+
+\begin_layout ExampleBlock
+\begin_inset Argument 2
+status collapsed
+
+\begin_layout Plain Layout
+An interactive session with dbus-client-gen
+\end_layout
+
+\end_inset
+
+
+\begin_inset listings
+lstparams "language=Python,showstringspaces=false"
+inline false
+status collapsed
+
+\begin_layout Plain Layout
+
+>>> import dbus_client_gen
+\end_layout
+
+\begin_layout Plain Layout
+
+>>> from dbus_client_gen import mo_query_builder
+\end_layout
+
+\begin_layout Plain Layout
+
+>>> import xml.etree.ElementTree as ET
+\end_layout
+
+\begin_layout Plain Layout
+
+>>> devs = mo_query_builder(
+\end_layout
+
+\begin_layout Plain Layout
+
+           ET.fromstring(introspect))
+\end_layout
+
+\begin_layout Plain Layout
+
+>>> devs
+\end_layout
+
+\begin_layout Plain Layout
+
+<function mo_query_builder.<locals>.the_func ...
+\end_layout
+
+\begin_layout Plain Layout
+
+>>> query = devs(props={'Devnode': '/dev/vdd'})
+\end_layout
+
+\begin_layout Plain Layout
+
+>>> query
+\end_layout
+
+\begin_layout Plain Layout
+
+<dbus_client_gen._managed_objects_queries.GMOQuery...
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+Summary
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+All these libraries, one more time.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+Thanks
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+Any questions?
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
