@@ -243,6 +243,15 @@ A discussion of what I've come up with for error-management in Rust, so
  far.
 \end_layout
 
+\begin_layout Itemize
+This is 
+\emph on
+not
+\emph default
+ an announcement of a new crate that will solve all your error-management
+ problems.
+\end_layout
+
 \end_deeper
 \begin_layout Standard
 \begin_inset Separator parbreak
@@ -665,7 +674,7 @@ Good: there
 \emph on
 is
 \emph default
- a mechansim to indicate that an error occurred
+ a mechanism to indicate that an error occurred
 \end_layout
 
 \begin_layout Description
@@ -1018,7 +1027,7 @@ fn write(f: &mut File) {
 
 \begin_layout Plain Layout
 
-    f.write(&thing_to_write);
+    f.write_all(&thing_to_write);
 \end_layout
 
 \begin_layout Plain Layout
@@ -1058,7 +1067,7 @@ warning: unused `std::result::Result` that must be used
 
 \begin_layout Plain Layout
 
-5 |     f.write(&thing_to_write);
+5 |     f.write_all(&thing_to_write);
 \end_layout
 
 \begin_layout Plain Layout
@@ -1083,6 +1092,109 @@ warning: unused `std::result::Result` that must be used
 
 \end_inset
 
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout FragileFrame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+What Does Rust Do?
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+What facilities does Rust have for error-handling?
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+In Rust, too, you can 
+\emph on
+pretend
+\emph default
+ to be interested in the error.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout ExampleBlock
+\begin_inset Argument 2
+status collapsed
+
+\begin_layout Plain Layout
+Pointless Behavior
+\end_layout
+
+\end_inset
+
+
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+fn write(f: &mut File) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    let thing_to_write = [0; 3];
+\end_layout
+
+\begin_layout Plain Layout
+
+    match f.write_all(&thing_to_write) {
+\end_layout
+
+\begin_layout Plain Layout
+
+        Err(_err) => {}
+\end_layout
+
+\begin_layout Plain Layout
+
+        Ok(_val) => {}
+\end_layout
+
+\begin_layout Plain Layout
+
+    }
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout ExampleBlock
 
 \end_layout
 
@@ -1162,7 +1274,7 @@ fn write(f: &mut File) {
 
 \begin_layout Plain Layout
 
-    f.write(&thing_to_write).unwrap();
+    f.write_all(&thing_to_write).unwrap();
 \end_layout
 
 \begin_layout Plain Layout
@@ -1247,7 +1359,7 @@ fn write(f: &mut File) {
 
 \begin_layout Plain Layout
 
-    f.write(&thing_to_write)
+    f.write_all(&thing_to_write)
 \end_layout
 
 \begin_layout Plain Layout
@@ -1286,7 +1398,7 @@ writing to a file never fails
 status collapsed
 
 \begin_layout Plain Layout
-dbus-signature-pyparsing
+What Does Rust Do?
 \end_layout
 
 \end_inset
@@ -1300,118 +1412,152 @@ dbus-signature-pyparsing
 
 \begin_deeper
 \begin_layout FrameSubtitle
-A parser based on pyparsing
-\begin_inset Foot
-status collapsed
-
-\begin_layout Plain Layout
-\begin_inset Flex URL
-status collapsed
-
-\begin_layout Plain Layout
-
-https://github.com/pyparsing/pyparsing
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-, which parses D-Bus signatures.
+What facilities doe Rust have for error-handling?
 \end_layout
 
 \begin_layout ExampleBlock
 \begin_inset Argument 2
-status collapsed
+status open
 
 \begin_layout Plain Layout
-An Interactive Session with dbus-signature-pyparsing
+Honest Behavior
 \end_layout
 
 \end_inset
 
 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+fn write(f: &mut File) -> Result<(), std::io::Error> {
+\end_layout
+
+\begin_layout Plain Layout
+
+    let thing_to_write = [0; 3];
+\end_layout
+
+\begin_layout Plain Layout
+
+    // return type: Result<(), std::io::Error>
+\end_layout
+
+\begin_layout Plain Layout
+
+    f.write_all(&thing_to_write)?;
+\end_layout
+
+\begin_layout Plain Layout
+
+    // Some other stuff that cannot return an error
+\end_layout
+
+\begin_layout Plain Layout
+
+    Ok(())
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout FragileFrame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+What Does Rust Do?
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+What facilities doe Rust have for error-handling?
 \end_layout
 
 \begin_layout ExampleBlock
+\begin_inset Argument 2
+status open
+
+\begin_layout Plain Layout
+Being Honest is Thankless Work
+\end_layout
+
+\end_inset
+
+
 \begin_inset listings
-lstparams "language=Python"
 inline false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
->>> signature = dbus_signatures().example()
+fn write(f: &mut File) -> Result<(), AllError> {
 \end_layout
 
 \begin_layout Plain Layout
 
->>> signature
+    let thing_to_write = [0; 3];
 \end_layout
 
 \begin_layout Plain Layout
 
-'(atguauay)h(vaasasx)a{g(yg)}'
+    // return type: Result<(), std::io::Error>
 \end_layout
 
 \begin_layout Plain Layout
 
->>> from dbus_signature_pyparsing import Parser
+    f.write_all(&thing_to_write)?;
 \end_layout
 
 \begin_layout Plain Layout
 
->>> parser = Parser().PARSER
+    // other possibly failing stuff here
 \end_layout
 
 \begin_layout Plain Layout
 
->>> _ = parser.parseString(signature, parseAll=True)
+    // that may return a Result type constructed
 \end_layout
 
 \begin_layout Plain Layout
 
->>> parser.parseString(
-\begin_inset Quotes eld
-\end_inset
-
-a
-\begin_inset Quotes erd
-\end_inset
-
-, parseAll=True)
+    // from a different error type.
 \end_layout
 
 \begin_layout Plain Layout
 
-Traceback (most recent call last):
+    Ok(())
 \end_layout
 
 \begin_layout Plain Layout
 
-  ...
-\end_layout
-
-\begin_layout Plain Layout
-
-  File "/usr/lib/python3.7/site-packages...
-\begin_inset Quotes erd
-\end_inset
-
- ...
-\end_layout
-
-\begin_layout Plain Layout
-
-    raise ParseException(...)
-\end_layout
-
-\begin_layout Plain Layout
-
-pyparsing.ParseException: Expected end of text ...
+}
 \end_layout
 
 \end_inset
@@ -1432,7 +1578,7 @@ pyparsing.ParseException: Expected end of text ...
 status collapsed
 
 \begin_layout Plain Layout
-Benefits of Constructing and Distributing the Parser
+What Does Rust Do?
 \end_layout
 
 \end_inset
@@ -1446,26 +1592,200 @@ Benefits of Constructing and Distributing the Parser
 
 \begin_deeper
 \begin_layout FrameSubtitle
-What does a general purpose D-Bus signature parser give us?
+What facilities does Rust have for error-handling?
 \end_layout
 
 \begin_layout Itemize
-100% code coverge on tests.
+So long as 
+\emph on
+everybody
+\emph default
+ behaves properly, every function that can have an error 
+\emph on
+must
+\emph default
+ return a value with the Result type.
 \end_layout
 
 \begin_layout Itemize
-This is where the compiler technology comes in
-\begin_inset Foot
+It is easier to identify bad behavior in Rust than in C, because it must
+ be explicit and visible.
+\end_layout
+
+\begin_layout Itemize
+But, and this is 
+\emph on
+really bad
+\emph default
+, the usual situation is a lot like in Python except that:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Due to static type-checking, at least we know the type of every error that
+ can be returned.
+\end_layout
+
+\begin_layout Itemize
+We don't even get a stack trace.
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
 status collapsed
+
+\begin_layout Plain Layout
+The Problem
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+Summary
+\end_layout
+
+\begin_layout Description
+Rust
+\end_layout
+
+\begin_deeper
+\begin_layout Description
+Good: there is a mechanism to indicate that an error occurred, it is enforced
+ by the compiler, and there is a statically checked limit to the types of
+ error that can be returned
+\end_layout
+
+\begin_layout Description
+Bad: usually these errors are just returned as the stack is unwound and
+ there is no stack trace
+\end_layout
+
+\end_deeper
+\begin_layout Description
+C
+\end_layout
+
+\begin_deeper
+\begin_layout Description
+Good: there 
+\emph on
+is
+\emph default
+ a mechanism to indicate that an error occurred
+\end_layout
+
+\begin_layout Description
+Bad: everything else
+\end_layout
+
+\end_deeper
+\begin_layout Description
+Python:
+\end_layout
+
+\begin_deeper
+\begin_layout Description
+Good: exception mechanism allowing error details
+\end_layout
+
+\begin_layout Description
+Bad: any exception type, stack traces galore
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+The Problem
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+What has been done about this for Rust?
+\end_layout
+
+\begin_layout Itemize
+error_chain
+\begin_inset Foot
+status open
 
 \begin_layout Plain Layout
 \begin_inset Flex URL
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
-https://www.pearson.com/us/higher-education/program/Fischer-Crafting-A-Compiler/PG
-M315544.html
+https://crates.io/crates/error-chain
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Released in 2016 to great fanfare
+\end_layout
+
+\begin_layout Itemize
+Mostly abandoned in 2018
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+failure
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+https://crates.io/crates/failure
 \end_layout
 
 \end_inset
@@ -1480,17 +1800,500 @@ M315544.html
 
 \begin_deeper
 \begin_layout Itemize
-pyparsing is a two-stage parser-generator.
+Released in 2017
 \end_layout
 
 \begin_layout Itemize
-any client can use this library to build anything that can be built from
- parse actions on a D-Bus signature.
+Been abandoned and revived at least once since then
+\end_layout
+
+\begin_layout Itemize
+Difficult to assess its future
 \end_layout
 
 \end_deeper
 \begin_layout Itemize
-Red Hat gives back to the community by distributing this work.
+the Rust standard library
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Still working
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+https://github.com/rust-lang/rust/issues/53487
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+A Solution
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+What do we want?
+\end_layout
+
+\begin_layout Itemize
+That missing backtrace!
+\end_layout
+
+\begin_layout Itemize
+Chaining of errors and programmatic access to the elements in the chain
+ with meaningful links representing
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+context
+\end_layout
+
+\begin_layout Itemize
+sequence
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Logging
+\end_layout
+
+\begin_layout Itemize
+The ability to
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+add all this in gradually
+\end_layout
+
+\begin_layout Itemize
+remove it gradually if Rust community manages something better
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout FragileFrame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+A Solution
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+What should be the backtrace policy?
+\end_layout
+
+\begin_layout ExampleBlock
+\begin_inset Argument 2
+status open
+
+\begin_layout Plain Layout
+Definition of Error type
+\end_layout
+
+\end_inset
+
+
+\begin_inset listings
+lstparams "basicstyle={\scriptsize}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+pub struct Error {
+\end_layout
+
+\begin_layout Plain Layout
+
+    // The source of the error, which may be an error for
+\end_layout
+
+\begin_layout Plain Layout
+
+    // which this error is a further explanation, i.e., a
+\end_layout
+
+\begin_layout Plain Layout
+
+    // constituent error, or it may simply be an error that
+\end_layout
+
+\begin_layout Plain Layout
+
+    // occurred previously, and which presumably caused the
+\end_layout
+
+\begin_layout Plain Layout
+
+    // current code to be run and encounter its own, novel error.
+\end_layout
+
+\begin_layout Plain Layout
+
+    source_impl: Option<Suberror>,
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    // The backtrace at the site the error is returned
+\end_layout
+
+\begin_layout Plain Layout
+
+    backtrace: Backtrace,
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    // Distinguish among different errors with an ErrorKind
+\end_layout
+
+\begin_layout Plain Layout
+
+    pub specifics: ErrorKind,
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+A Solution
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+That missing backtrace!
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+https://crates.io/crates/backtrace
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename stack.svg
+	scale 20
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+The Problem of the Stack
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+A Solution
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+What should be the backtrace policy?
+\end_layout
+
+\begin_layout Itemize
+Currently, 
+\emph on
+every
+\emph default
+ error gets a backtrace.
+\end_layout
+
+\begin_layout Itemize
+But we hedge our bets and make the accessor function return an 
+\family typewriter
+Option
+\family default
+ type.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+A Solution
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+What else should the error contain?
+\end_layout
+
+\begin_layout Itemize
+Specific information about this particular error
+\end_layout
+
+\begin_layout Itemize
+An optional child
+\end_layout
+
+\begin_layout Standard
+Both aught to be programmatically accessible.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+A Solution: the specifics field
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+The specifics about this particular error.
+\end_layout
+
+\begin_layout Standard
+The specifics field has type ErrorKind, which is a 
+\emph on
+globally defined enumerated type.
+\end_layout
+
+\begin_layout Itemize
+not a trait, because of the various rules that restrict the use of trait
+ objects
+\end_layout
+
+\begin_layout Itemize
+globally defined, because if it is not a trait then each locally defined
+ ErrorKind would need its own enclosing Error type
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator parbreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+A Solution: the optional child
+\end_layout
+
+\end_inset
+
+
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout FrameSubtitle
+The specifics about this particular error.
+\end_layout
+
+\begin_layout Standard
+The specifics field has type ErrorKind, which is a 
+\emph on
+globally defined enumerated type.
+\end_layout
+
+\begin_layout Itemize
+not a trait, because of the various rules that restrict the use of trait
+ objects
+\end_layout
+
+\begin_layout Itemize
+globally defined, because if it is not a trait then each locally defined
+ ErrorKind would need its own enclosing Error type
 \end_layout
 
 \end_deeper
